@@ -86,9 +86,7 @@ export default function HeartClickGame({ onClose }: HeartClickGameProps) {
     )
     setScore((prev) => prev + 10)
 
-    // Create explosion effect
-    const audio = new Audio("/sounds/pop.mp3")
-    audio.play().catch((e) => console.error("Error playing sound:", e))
+    // No sound effects - using only background music
   }
 
   const resetGame = () => {

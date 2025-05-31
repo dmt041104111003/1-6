@@ -38,9 +38,7 @@ export default function InteractiveCake({ onComplete }: InteractiveCakeProps) {
 
     setProgress(newProgress)
 
-    // Play blowing sound
-    const audio = new Audio("/sounds/blow.mp3")
-    audio.play().catch((e) => console.error("Error playing sound:", e))
+    // No sound effects - using only background music
 
     if (newProgress < 100) {
       // Not yet complete
@@ -56,9 +54,7 @@ export default function InteractiveCake({ onComplete }: InteractiveCakeProps) {
       setShowConfetti(true)
       setMessage("Chúc mừng! Điều ước của em sẽ thành hiện thực! ✨")
 
-      // Play success sound
-      const successAudio = new Audio("/sounds/success.mp3")
-      successAudio.play().catch((e) => console.error("Error playing sound:", e))
+      // No sound effects - using only background music
 
       toast({
         title: "Tuyệt vời! 100%",

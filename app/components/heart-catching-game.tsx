@@ -118,14 +118,7 @@ export default function HeartCatchingGame({ onClose, onEnergyGain }: HeartCatchi
                 onEnergyGain(5)
               }
 
-              // Play sound effect
-              if (item.type === "heart") {
-                const audio = new Audio("/sounds/success.mp3")
-                audio.play().catch((e) => console.error("Error playing sound:", e))
-              } else {
-                const audio = new Audio("/sounds/wrong.mp3")
-                audio.play().catch((e) => console.error("Error playing sound:", e))
-              }
+              // No sound effects - using only background music
 
               return false
             }

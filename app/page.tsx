@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Heart, Sparkles, Gift, GamepadIcon, Music } from "lucide-react"
 import GiftBox from "./components/gift-box"
@@ -26,6 +26,8 @@ export default function January6Page() {
   const [showInstructions, setShowInstructions] = useState<string | null>(null)
   const [energy, setEnergy] = useState(0)
   const [showFinalMessage, setShowFinalMessage] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const audioRef = useRef<HTMLAudioElement>(null)
 
   useEffect(() => {
     // Trigger page load animation
@@ -35,6 +37,64 @@ export default function January6Page() {
 
     return () => clearTimeout(timer)
   }, [])
+
+  // Play background music automatically
+  useEffect(() => {
+    // Function to play the music
+    const playMusic = () => {
+      if (audioRef.current) {
+        audioRef.current.volume = 0.7 // Slightly louder
+        audioRef.current.currentTime = 0 // Start from beginning
+        
+        // Try to play and handle any errors
+        const playPromise = audioRef.current.play()
+        if (playPromise !== undefined) {
+          playPromise.catch((error: Error) => {
+            console.error("Autoplay prevented:", error.message)
+          })
+        }
+      }
+    }
+    
+    // Try to play immediately
+    playMusic()
+    
+    // Try again after a short delay
+    const timer1 = setTimeout(playMusic, 1000)
+    const timer2 = setTimeout(playMusic, 2000)
+    const timer3 = setTimeout(playMusic, 3000)
+    
+    // Try to play on any user interaction
+    const handleUserInteraction = () => {
+      playMusic()
+    }
+    
+    // Add event listeners for user interaction
+    document.addEventListener('click', handleUserInteraction)
+    document.addEventListener('touchstart', handleUserInteraction)
+    
+    // Clean up
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+      clearTimeout(timer3)
+      document.removeEventListener('click', handleUserInteraction)
+      document.removeEventListener('touchstart', handleUserInteraction)
+    }
+  }, [])
+  
+  // Control music playback with the button
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch((error: Error) => {
+          console.error("Error playing music:", error.message)
+        })
+      } else {
+        audioRef.current.pause()
+      }
+    }
+  }, [isPlaying])
 
   useEffect(() => {
     // Check if energy reaches 300 (changed from 1000)
@@ -53,10 +113,11 @@ export default function January6Page() {
     setTimeout(() => {
       setShowFireworks(true)
     }, 2000)
-
-    // Play romantic music
-    const audio = new Audio("/sounds/romantic.mp3")
-    audio.play().catch((e) => console.error("Error playing sound:", e))
+    
+    // Make sure background music is playing
+    if (audioRef.current) {
+      audioRef.current.play().catch((e) => console.error("Error playing music:", e))
+    }
   }
 
   const handleMessageComplete = () => {
@@ -106,6 +167,17 @@ export default function January6Page() {
 
   return (
     <main className="min-h-screen relative overflow-hidden">
+      {/* Background Music */}
+      <audio 
+        ref={audioRef} 
+        src="/music.mp3" 
+        loop 
+        autoPlay 
+        controls={false}
+        muted={false}
+        preload="auto"
+        style={{ display: 'none' }} 
+      />
       <RomanticBackground />
       <FloatingHearts />
 
@@ -134,7 +206,7 @@ export default function January6Page() {
               </h2>
               <p className="text-base text-pink-200 flex items-center justify-center">
                 <Sparkles className="mr-2 h-4 w-4" />
-                Một kỷ niệm đáng nhớ
+                Yêu em rất nhiều!!!
                 <Sparkles className="ml-2 h-4 w-4" />
               </p>
             </>
@@ -203,17 +275,26 @@ export default function January6Page() {
           )}
         </div>
 
-        {/* Reset Button */}
-        {giftOpened && (
-          <div className="fixed top-4 right-4 z-20">
+        {/* Reset and Music Control Buttons */}
+        <div className="fixed top-4 right-4 z-20 flex gap-2">
+          {/* Music Control Button */}
+          <Button
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full p-3 shadow-lg transform hover:scale-110 transition-all duration-200"
+          >
+            <Music className="h-5 w-5" />
+          </Button>
+          
+          {/* Reset Button */}
+          {giftOpened && (
             <Button
               onClick={resetExperience}
               className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-full p-3 shadow-lg transform hover:scale-110 transition-all duration-200"
             >
               <Heart className="h-5 w-5" />
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Typewriter Message */}
